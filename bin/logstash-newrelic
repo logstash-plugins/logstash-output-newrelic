@@ -1,0 +1,2 @@
+#!/bin/sh
+nohup ./logstash -f logstash-newrelic.conf 2>&1 &
