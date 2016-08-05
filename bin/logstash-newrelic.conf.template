@@ -1,0 +1,10 @@
+output {
+  newrelic {
+    account_id => your_id_here
+    insert_key => your_key_here
+    event_type => your_event_type_here
+    batch => true
+    batch_events => 10
+    batch_timeout => 5
+  }
+}
