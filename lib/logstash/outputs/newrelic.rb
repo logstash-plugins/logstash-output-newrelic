@@ -28,7 +28,7 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
   
   # The name for your event type. Use alphanumeric characters only.
   # If left out, your events will be stored under "logstashEvent".
-  config :event_type, :validate => :string, :default => "logstashEvent"
+  config :event_type, :validate => :string, :default => "LogstashEvent"
   
   # Should the log events be sent to Insights over https instead of plain http (typically yes).
   config :proto, :validate => :string, :default => "https"
@@ -55,13 +55,15 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
 
   # New Relic Insights Reserved Words
   # https://docs.newrelic.com/docs/insights/new-relic-insights/adding-querying-data/inserting-custom-events#keywords
-  # moved = change "word" to "word_moved"
   # backticks = change "word" to "`word`"
+  # moved = change "word" to "word_moved"
+  # skipped = skip this attribute altogether (not used so far)
   # If you enter anything else, the "word" will change to the "anything else"
   RESWORDS = {
     "accountId" => "moved",
     "appId" => "moved",
-    "timestamp" => "moved",
+    "timestamp" => "logstash timestamp",
+    "@timestamp" => "logstash timestamp",
     "type" => "moved",
     "ago" => "backticks",
     "and" => "backticks",
@@ -161,15 +163,22 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
     output_event['eventType'] = @event_type
     
     # Setting timestamp to what logstash reports
-    timestamp_parsed = Time.parse(event.timestamp.to_s)
-    output_event['timestamp'] = timestamp_parsed.to_i
+    if this_event.key?('@timestamp')
+      timestamp_parsed = Time.parse(this_event['@timestamp'].to_s)
+      output_event['timestamp'] = timestamp_parsed.to_i
+    elsif this_event.key?('timestamp')
+      timestamp_parsed = Time.parse(this_event['timestamp'].to_s)
+      output_event['timestamp'] = timestamp_parsed.to_i
+    end
 
     # Search event's attribute names for reserved words, replace with 'compliant' versions
     # Storing 'compliant' key names in "EVENT_KEYS" to minimize time spent doing this
     this_event.each_key do |event_key|
       if RESWORDS.has_key?(event_key)
         @logger.debug("Reserved word found", :reserved_word => event_key)
-        if RESWORDS[event_key] == "moved"
+        if RESWORDS[event_key] == "skipped"
+          next
+        elsif RESWORDS[event_key] == "moved"
           proper_name = event_key + "_moved"
         elsif RESWORDS[event_key] == "backticks"
           proper_name = "`" + event_key + "`"
