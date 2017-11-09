@@ -19,20 +19,20 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
   milestone 1
 
   # Your New Relic account ID. This is the 5 or 6-digit number found in the URL when you are logged into New Relic:
-  # https://rpm.newrelic.com/accounts/[account_id]/... 
+  # https://rpm.newrelic.com/accounts/[account_id]/...
   config :account_id, :validate => :string, :required => true
-  
+
   # Your Insights Insert Key. You will need to generate one if you haven't already, as described here:
   # https://docs.newrelic.com/docs/insights/new-relic-insights/adding-querying-data/inserting-custom-events-insights-api#register
   config :insert_key, :validate => :string, :required => true
-  
+
   # The name for your event type. Use alphanumeric characters only.
   # If left out, your events will be stored under "logstashEvent".
   config :event_type, :validate => :string, :default => "LogstashEvent"
-  
+
   # Should the log events be sent to Insights over https instead of plain http (typically yes).
   config :proto, :validate => :string, :default => "https"
-  
+
   # Proxy info - all optional
   # If using a proxy, only proxy_host is required.
   config :proxy_host, :validate => :string
@@ -49,7 +49,7 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
   config :batch, :validate => :boolean, :default => true
   # This setting controls how many events will be buffered before sending a batch of events.
   config :batch_events, :validate => :number, :default => 10
-  # This setting controls how long the output will wait before sending a batch of a events, 
+  # This setting controls how long the output will wait before sending a batch of a events,
   # should the minimum specified in batch_events not be met yet.
   config :batch_timeout, :validate => :number, :default => 5
 
@@ -152,15 +152,15 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
     buffer_flush(:final => true)
     finished
   end # def teardown
-  
+
   # Turn event into an Insights-compliant event
   public
   def parse_event(event)
     this_event = event.to_hash
     output_event = Hash.new
-    
+
     # Setting eventType to what's in the config
-    output_event['eventType'] = @event_type
+    output_event['eventType'] = event.sprintf(@event_type)
     
     # Setting timestamp to what logstash reports
     if this_event.key?('@timestamp')
@@ -216,5 +216,5 @@ class LogStash::Outputs::NewRelic < LogStash::Outputs::Base
       @logger.warn("Event sent to New Relic FAILED. Error:", :error => response.error!)
     end
   end # def send_to_insights
-  
+
 end # class LogStash::Outputs::NewRelic
