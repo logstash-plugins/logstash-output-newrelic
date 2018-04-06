@@ -1,5 +1,6 @@
 :plugin: newrelic
 :type: output
+:default_codec: plain
 
 ///////////////////////////////////////////
 START - GENERATED VARIABLES, DO NOT EDIT!
@@ -152,3 +153,5 @@ Proxy_user should be left out if connecting to your proxy unauthenticated.
 
 [id="plugins-{type}s-{plugin}-common-options"]
 include::{include_path}/{type}.asciidoc[]
+
+:default_codec!:
