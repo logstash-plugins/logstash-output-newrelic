@@ -24,7 +24,9 @@ include::{include_path}/plugin_header.asciidoc[]
 This output sends logstash events to New Relic Insights as custom events.
 
 You can learn more about New Relic Insights here:
-https://docs.newrelic.com/docs/insights/new-relic-insights/understanding-insights/new-relic-insights
+https://docs.newrelic.com/docs/insights/new-relic-insights/understanding-insights/new-relic-insights 
+and at:
+https://newrelic.com/instant-observability/elasticsearch
 
 [id="plugins-{type}s-{plugin}-options"]
 ==== Newrelic Output Configuration Options
